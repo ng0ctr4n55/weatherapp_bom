@@ -27,9 +27,87 @@
     .temp-min { color: #4299e1; }
     .rain { font-size: 0.8rem; color: #2f855a; margin-top: 0.2rem; }
     .fire { font-size: 0.75rem; color: #c05621; margin-top: 0.2rem; }
+    .weather-icon { display: flex; align-items: center; justify-content: center; height: 56px; margin: 0.4rem 0; }
+    .weather-icon svg { overflow: visible; }
+    /* sun ray spin */
+    @keyframes spin-rays { to { transform: rotate(360deg); } }
+    .sun-rays { transform-box: fill-box; transform-origin: center; animation: spin-rays 10s linear infinite; }
+    /* cloud drift */
+    @keyframes drift { 0%,100%{transform:translateX(0)} 50%{transform:translateX(2px)} }
+    .cloud-drift { animation: drift 3.5s ease-in-out infinite; }
+    /* rain drop fall */
+    @keyframes drop-fall { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(10px);opacity:0} }
+    .drop-1 { animation: drop-fall 1s ease-in infinite; }
+    .drop-2 { animation: drop-fall 1s ease-in 0.3s infinite; }
+    .drop-3 { animation: drop-fall 1s ease-in 0.6s infinite; }
+    /* lightning flash */
+    @keyframes bolt-flash { 0%,85%,100%{opacity:1} 90%{opacity:0.05} }
+    .lightning-bolt { animation: bolt-flash 2.2s ease-in-out infinite; }
   </style>
 </head>
 <body>
+  <!-- Hidden SVG symbol library -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-sunny" viewBox="0 0 52 52">
+      <g class="sun-rays" style="transform-origin:26px 26px">
+        <line x1="26" y1="3"  x2="26" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="26" y1="3"  x2="26" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" transform="rotate(45 26 26)"/>
+        <line x1="26" y1="3"  x2="26" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" transform="rotate(90 26 26)"/>
+        <line x1="26" y1="3"  x2="26" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" transform="rotate(135 26 26)"/>
+        <line x1="26" y1="3"  x2="26" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" transform="rotate(180 26 26)"/>
+        <line x1="26" y1="3"  x2="26" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" transform="rotate(225 26 26)"/>
+        <line x1="26" y1="3"  x2="26" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" transform="rotate(270 26 26)"/>
+        <line x1="26" y1="3"  x2="26" y2="10" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" transform="rotate(315 26 26)"/>
+      </g>
+      <circle cx="26" cy="26" r="10" fill="#fbbf24"/>
+    </symbol>
+    <symbol id="icon-partly-sunny" viewBox="0 0 52 52">
+      <g class="sun-rays" style="transform-origin:18px 18px">
+        <line x1="18" y1="3" x2="18" y2="8" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+        <line x1="18" y1="3" x2="18" y2="8" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" transform="rotate(45 18 18)"/>
+        <line x1="18" y1="3" x2="18" y2="8" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" transform="rotate(90 18 18)"/>
+        <line x1="18" y1="3" x2="18" y2="8" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" transform="rotate(135 18 18)"/>
+        <line x1="18" y1="3" x2="18" y2="8" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" transform="rotate(180 18 18)"/>
+        <line x1="18" y1="3" x2="18" y2="8" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" transform="rotate(225 18 18)"/>
+        <line x1="18" y1="3" x2="18" y2="8" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" transform="rotate(270 18 18)"/>
+        <line x1="18" y1="3" x2="18" y2="8" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" transform="rotate(315 18 18)"/>
+      </g>
+      <circle cx="18" cy="18" r="7" fill="#fbbf24"/>
+      <g class="cloud-drift">
+        <rect x="10" y="28" width="36" height="15" rx="7.5" fill="#90a4ae"/>
+        <circle cx="20" cy="28" r="9" fill="#90a4ae"/>
+        <circle cx="34" cy="26" r="11" fill="#b0bec5"/>
+      </g>
+    </symbol>
+    <symbol id="icon-cloudy" viewBox="0 0 52 52">
+      <g class="cloud-drift">
+        <rect x="4" y="14" width="44" height="20" rx="10" fill="#90a4ae"/>
+        <circle cx="17" cy="14" r="12" fill="#90a4ae"/>
+        <circle cx="36" cy="11" r="15" fill="#b0bec5"/>
+      </g>
+    </symbol>
+    <symbol id="icon-rain" viewBox="0 0 52 52">
+      <g class="cloud-drift">
+        <rect x="4" y="10" width="44" height="18" rx="9" fill="#78909c"/>
+        <circle cx="16" cy="10" r="10" fill="#78909c"/>
+        <circle cx="34" cy="7"  r="13" fill="#90a4ae"/>
+      </g>
+      <line class="drop-1" x1="16" y1="34" x2="13" y2="46" stroke="#42a5f5" stroke-width="2.5" stroke-linecap="round"/>
+      <line class="drop-2" x1="26" y1="34" x2="23" y2="46" stroke="#42a5f5" stroke-width="2.5" stroke-linecap="round"/>
+      <line class="drop-3" x1="36" y1="34" x2="33" y2="46" stroke="#42a5f5" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="icon-storm" viewBox="0 0 52 52">
+      <g class="cloud-drift">
+        <rect x="4" y="12" width="44" height="18" rx="9" fill="#64748b"/>
+        <circle cx="16" cy="12" r="10" fill="#64748b"/>
+        <circle cx="33" cy="9"  r="13" fill="#78909c"/>
+      </g>
+      <polygon class="lightning-bolt" points="29,30 21,43 27,43 23,52 34,38 27,38 32,30" fill="#fbbf24"/>
+      <line class="drop-1" x1="13" y1="35" x2="10" y2="45" stroke="#90caf9" stroke-width="2" stroke-linecap="round"/>
+      <line class="drop-3" x1="41" y1="35" x2="38" y2="45" stroke="#90caf9" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+  </svg>
+
   <header>
     <div>
       <h1>Fraser Rise, VIC — 7-Day Forecast</h1>
@@ -45,6 +123,27 @@
   <script>
     const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
     const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+    const SVG_NS = "http://www.w3.org/2000/svg";
+
+    function weatherIconId(descriptor) {
+      const d = (descriptor || '').toLowerCase();
+      if (d.includes('thunder') || d.includes('storm')) return 'icon-storm';
+      if (d.includes('rain') || d.includes('shower'))   return 'icon-rain';
+      if (d.includes('cloudy') && !d.includes('mostly') && !d.includes('partly')) return 'icon-cloudy';
+      if (d.includes('mostly_sunny') || d.includes('mostly sunny') || d.includes('partly')) return 'icon-partly-sunny';
+      return 'icon-sunny';
+    }
+
+    function makeWeatherIcon(descriptor) {
+      const svg = document.createElementNS(SVG_NS, 'svg');
+      svg.setAttribute('width', '52');
+      svg.setAttribute('height', '52');
+      const use = document.createElementNS(SVG_NS, 'use');
+      use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#' + weatherIconId(descriptor));
+      svg.appendChild(use);
+      return svg;
+    }
 
     function el(tag, cls) {
       const e = document.createElement(tag);
@@ -64,6 +163,11 @@
 
       card.appendChild(txt("div", "day", DAYS[d.getUTCDay()]));
       card.appendChild(txt("div", "date", d.getUTCDate() + " " + MONTHS[d.getUTCMonth()]));
+
+      const iconWrap = el("div", "weather-icon");
+      iconWrap.appendChild(makeWeatherIcon(day.icon_descriptor));
+      card.appendChild(iconWrap);
+
       card.appendChild(txt("div", "condition", day.short_text || ""));
 
       const temps = el("div", "temps");
