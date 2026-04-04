@@ -28,3 +28,4 @@ Single-file Flask app (`app.py`) with one HTML template (`templates/index.html`)
 - `REFRESH_INTERVAL_HOURS` — cache TTL (default 24h)
 
 **Weather icon mapping** (`templates/index.html`): `icon_descriptor` values from the BOM API (`sunny`, `mostly_sunny`, `shower`, `rain`, `thunderstorm`, `cloudy`, etc.) map to SVG `<symbol>` ids (`icon-sunny`, `icon-partly-sunny`, `icon-rain`, `icon-storm`, `icon-cloudy`).
+<img width="3840" height="2076" alt="Screenshot 2026-04-04 at 13-52-43 Fraser Rise Weather" src="https://github.com/user-attachments/assets/865ed5a9-e19c-4d88-8670-634bfbba6176" />
