@@ -7,6 +7,7 @@ import urllib.request
 import urllib.error
 from datetime import datetime, timezone
 from flask import Flask, jsonify, render_template
+import requests
 
 BOM_API_URL = "https://api.weather.bom.gov.au/v1/locations/r1qcmpg/forecasts/daily"
 FORECAST_FILE = os.path.join(os.path.dirname(__file__), "forecast.json")
@@ -14,7 +15,7 @@ REFRESH_INTERVAL_HOURS = 24
 PORT = 5000
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -34,10 +35,10 @@ def fetch_forecast() -> bool:
         with open(tmp_path, "w") as f:
             json.dump(data, f, indent=2)
         os.replace(tmp_path, FORECAST_FILE)
-        log.info("Forecast updated successfully.")
+        logger.info("Forecast updated successfully.")
         return True
     except Exception as exc:
-        log.error("Failed to fetch forecast: %s", exc)
+        logger.error("Failed to fetch forecast: %s", exc)
         return False
 
 
@@ -61,7 +62,7 @@ def start_background_refresh():
     """Daemon thread: fetch immediately if stale, then refresh every 24h."""
     def _loop():
         if is_cache_stale():
-            log.info("Cache stale or missing — fetching now.")
+            logger.info("Cache stale or missing — fetching now.")
             fetch_forecast()
         while True:
             if not os.path.exists(FORECAST_FILE):
@@ -69,12 +70,12 @@ def start_background_refresh():
             else:
                 sleep_secs = REFRESH_INTERVAL_HOURS * 3600
             time.sleep(sleep_secs)
-            log.info("Refreshing forecast.")
+            logger.info("Refreshing forecast.")
             fetch_forecast()
 
     t = threading.Thread(target=_loop, daemon=True)
     t.start()
-    log.info("Background refresh thread started.")
+    logger.info("Background refresh thread started.")
 
 
 @app.route("/")
@@ -107,6 +108,30 @@ def refresh_forecast():
     if not success:
         data["refresh_failed"] = True
     return jsonify(data)
+
+
+def fetch_weather_data(city: str) -> Optional[Dict[str, Any]]:
+    """
+    Fetches weather data for a given city from the external API.
+
+    Args:
+        city: The name of the city to query.
+
+    Returns:
+        A dictionary containing the weather data, or None if an error occurs.
+    """
+    API_URL = "https://api.weather.com/v1/current" # Use a constant
+    try:
+        # Use a requests.get call with a timeout
+        response = requests.get(f"{API_URL}?q={city}&appid=YOUR_KEY", timeout=10)
+        response.raise_for_status() # Raises HTTPError for bad responses (4xx or 5xx)
+        return response.json()
+    except requests.exceptions.Timeout:
+        logger.error(f"Timeout occurred while fetching data for {city}.")
+        return None
+    except requests.exceptions.RequestException as e:
+        logger.error(f"An error occurred during the API request for {city}: {e}")
+        return None
 
 
 if __name__ == "__main__":
