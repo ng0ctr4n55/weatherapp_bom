@@ -7,7 +7,6 @@ import urllib.request
 import urllib.error
 from datetime import datetime, timezone
 from flask import Flask, jsonify, render_template
-import requests
 
 BOM_API_URL = "https://api.weather.bom.gov.au/v1/locations/r1qcmpg/forecasts/daily"
 FORECAST_FILE = os.path.join(os.path.dirname(__file__), "forecast.json")
@@ -108,30 +107,6 @@ def refresh_forecast():
     if not success:
         data["refresh_failed"] = True
     return jsonify(data)
-
-
-def fetch_weather_data(city: str) -> Optional[Dict[str, Any]]:
-    """
-    Fetches weather data for a given city from the external API.
-
-    Args:
-        city: The name of the city to query.
-
-    Returns:
-        A dictionary containing the weather data, or None if an error occurs.
-    """
-    API_URL = "https://api.weather.com/v1/current" # Use a constant
-    try:
-        # Use a requests.get call with a timeout
-        response = requests.get(f"{API_URL}?q={city}&appid=YOUR_KEY", timeout=10)
-        response.raise_for_status() # Raises HTTPError for bad responses (4xx or 5xx)
-        return response.json()
-    except requests.exceptions.Timeout:
-        logger.error(f"Timeout occurred while fetching data for {city}.")
-        return None
-    except requests.exceptions.RequestException as e:
-        logger.error(f"An error occurred during the API request for {city}: {e}")
-        return None
 
 
 if __name__ == "__main__":

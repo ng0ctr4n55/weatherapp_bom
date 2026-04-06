@@ -130,6 +130,7 @@
       const d = (descriptor || '').toLowerCase();
       if (d.includes('thunder') || d.includes('storm')) return 'icon-storm';
       if (d.includes('rain') || d.includes('shower'))   return 'icon-rain';
+      if (d.includes('mostly_cloudy') || d.includes('mostly cloudy')) return 'icon-partly-sunny';
       if (d.includes('cloudy') && !d.includes('mostly') && !d.includes('partly')) return 'icon-cloudy';
       if (d.includes('mostly_sunny') || d.includes('mostly sunny') || d.includes('partly')) return 'icon-partly-sunny';
       return 'icon-sunny';
@@ -140,7 +141,7 @@
       svg.setAttribute('width', '52');
       svg.setAttribute('height', '52');
       const use = document.createElementNS(SVG_NS, 'use');
-      use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#' + weatherIconId(descriptor));
+      use.setAttribute('href', '#' + weatherIconId(descriptor));
       svg.appendChild(use);
       return svg;
     }
