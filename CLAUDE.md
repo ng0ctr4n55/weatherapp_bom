@@ -29,3 +29,12 @@ Single-file Flask app (`app.py`) with one HTML template (`templates/index.html`)
 
 **Weather icon mapping** (`templates/index.html`): `icon_descriptor` values from the BOM API (`sunny`, `mostly_sunny`, `shower`, `rain`, `thunderstorm`, `cloudy`, etc.) map to SVG `<symbol>` ids (`icon-sunny`, `icon-partly-sunny`, `icon-rain`, `icon-storm`, `icon-cloudy`).
 <img width="3840" height="2076" alt="Screenshot 2026-04-04 at 13-52-43 Fraser Rise Weather" src="https://github.com/user-attachments/assets/865ed5a9-e19c-4d88-8670-634bfbba6176" />
+
+## Docker
+
+```bash
+docker build -t weatherapp-bom .
+docker run -p 5000:5000 weatherapp-bom
+```
+
+**Gotcha:** Flask is configured with `host="0.0.0.0"` — required for the container to be reachable. If reverted to `127.0.0.1`, the app will be unreachable from outside the container.
