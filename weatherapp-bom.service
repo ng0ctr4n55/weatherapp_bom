@@ -1,0 +1,14 @@
+[Unit]
+Description=Weather App BOM
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+ExecStartPre=-/usr/bin/docker stop weatherapp-bom
+ExecStartPre=-/usr/bin/docker rm weatherapp-bom
+ExecStart=/usr/bin/docker run --name weatherapp-bom -p 5000:5000 weatherapp-bom
+ExecStop=/usr/bin/docker stop weatherapp-bom
+
+[Install]
+WantedBy=multi-user.target
