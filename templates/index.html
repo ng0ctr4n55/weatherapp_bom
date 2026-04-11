@@ -13,7 +13,16 @@
     #refresh-btn { background: white; color: #2b6cb0; border: none; padding: 0.5rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
     #refresh-btn:hover { background: #ebf8ff; }
     #refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    main { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+    main {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      display: grid;
+      grid-template-columns: 1fr auto minmax(320px, 0.7fr);
+      gap: 2rem;
+      align-items: start;
+    }
+    .v-separator { width: 1px; background-color: #e2e8f0; align-self: stretch; }
     #status { text-align: center; padding: 2rem; color: #718096; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
     .card {
@@ -48,6 +57,35 @@
 
     /* Text color overrides for dynamic backgrounds */
     .card[class*="bg-"] .day, .card[class*="bg-"] .date, .card[class*="bg-"] .condition, .card[class*="bg-"] .temp-max, .card[class*="bg-"] .temp-sep, .card[class*="bg-"] .temp-min, .card[class*="bg-"] .rain, .card[class*="bg-"] .fire { color: inherit; }
+
+    /* Custom location card styles */
+    .custom-location-title { font-size: 1.2rem; font-weight: 600; color: #2d3748; }
+    #location-form { display: flex; gap: 0.5rem; }
+    #location-input {
+      flex-grow: 1;
+      padding: 0.6rem;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+    #location-submit-btn {
+      background: #2b6cb0;
+      color: white;
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background-color 0.2s;
+    }
+    #location-submit-btn:hover { background: #3182ce; }
+    #location-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    #location-weather-result {
+      margin-top: 1.5rem;
+      min-height: 100px;
+      transition: all 0.3s;
+    }
 
     .weather-icon { display: flex; align-items: center; justify-content: center; height: 56px; margin: 0.4rem 0; }
     .weather-icon svg { overflow: visible; }
@@ -138,24 +176,36 @@
     <button id="refresh-btn">Refresh Now</button>
   </header>
   <main>
-    <div id="status">Fetching forecast...</div>
-    <div class="grid" id="cards" hidden></div>
+    <div id="forecast-bom">
+      <div id="status">Fetching forecast...</div>
+      <div class="grid" id="cards" hidden></div>
+    </div>
+    <div class="v-separator"></div>
+    <div id="forecast-custom">
+      <div class="card">
+        <h2 class="custom-location-title">Check another location</h2>
+        <form id="location-form">
+          <input type="text" id="location-input" placeholder="Enter city name" required>
+          <button type="submit" id="location-submit-btn">Get Weather</button>
+        </form>
+        <div id="location-weather-result"></div>
+      </div>
+    </div>
   </main>
 
   <script>
     const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
     const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
     const SVG_NS = "http://www.w3.org/2000/svg";
 
     function weatherIconId(descriptor) {
       const d = (descriptor || '').toLowerCase();
       if (d.includes('thunder') || d.includes('storm')) return 'icon-storm';
       if (d.includes('rain') || d.includes('shower'))   return 'icon-rain';
-      if (d.includes('mostly_cloudy') || d.includes('mostly cloudy')) return 'icon-partly-sunny';
       if (d.includes('cloudy') && !d.includes('mostly') && !d.includes('partly')) return 'icon-cloudy';
-      if (d.includes('mostly_sunny') || d.includes('mostly sunny') || d.includes('partly')) return 'icon-partly-sunny';
-      return 'icon-sunny';
+      if (d.includes('partly') || d.includes('fair') || d.includes('mostly')) return 'icon-partly-sunny';
+      if (d.includes('sunny') || d.includes('clear')) return 'icon-sunny';
+      return 'icon-cloudy'; // Default to cloudy for unknowns
     }
 
     function weatherBgClass(descriptor) {
@@ -272,6 +322,53 @@
 
     document.getElementById("refresh-btn").addEventListener("click", doRefresh);
     loadForecast();
+
+    const locationForm = document.getElementById("location-form");
+    const locationInput = document.getElementById("location-input");
+    const locationSubmitBtn = document.getElementById("location-submit-btn");
+    const locationResultDiv = document.getElementById("location-weather-result");
+
+    locationForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const cityName = locationInput.value.trim();
+      if (!cityName) return;
+
+      locationSubmitBtn.disabled = true;
+      locationSubmitBtn.textContent = "Searching...";
+      locationResultDiv.innerHTML = `<p>Fetching weather for ${cityName}...</p>`;
+
+      try {
+        // This new endpoint needs to be implemented in the backend (app.py)
+        const res = await fetch(`/api/met-weather?city=${encodeURIComponent(cityName)}`);
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({ message: "Failed to get weather data." }));
+          throw new Error(errData.message || `Server error: ${res.status}`);
+        }
+        const weather = await res.json();
+        renderLocationWeather(weather);
+      } catch (error) {
+        locationResultDiv.innerHTML = `<p style="color: #e53e3e;">Error: ${error.message}</p>`;
+      } finally {
+        locationSubmitBtn.disabled = false;
+        locationSubmitBtn.textContent = "Get Weather";
+      }
+    });
+
+    function renderLocationWeather(weather) {
+      locationResultDiv.innerHTML = ""; // Clear previous results
+      const card = el("div", "card");
+      card.classList.add(weatherBgClass(weather.icon_descriptor));
+      card.appendChild(txt("div", "day", weather.name));
+      card.appendChild(txt("div", "date", new Date().toLocaleDateString()));
+      const iconWrap = el("div", "weather-icon");
+      iconWrap.appendChild(makeWeatherIcon(weather.icon_descriptor));
+      card.appendChild(iconWrap);
+      card.appendChild(txt("div", "condition", weather.summary));
+      const temp = el("div", "temps");
+      temp.appendChild(txt("span", "", weather.temperature + "\u00b0C"));
+      card.appendChild(temp);
+      locationResultDiv.appendChild(card);
+    }
   </script>
 </body>
 </html>
