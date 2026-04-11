@@ -29,11 +29,15 @@
       background: white;
       border-radius: 12px;
       padding: 1.2rem 1rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
       transition: all 0.2s ease-in-out;
+    }
+    .card:not(.form-card):hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
     }
     .card.today { border: 2px solid #2b6cb0; }
 
@@ -60,6 +64,11 @@
 
     /* Custom location card styles */
     .custom-location-title { font-size: 1.2rem; font-weight: 600; color: #2d3748; }
+    .card.form-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
     #location-form { display: flex; gap: 0.5rem; }
     #location-input {
       flex-grow: 1;
@@ -85,6 +94,28 @@
       margin-top: 1.5rem;
       min-height: 100px;
       transition: all 0.3s;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+      .v-separator {
+        display: none;
+      }
+      header {
+        padding: 1.5rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+      }
     }
 
     .weather-icon { display: flex; align-items: center; justify-content: center; height: 56px; margin: 0.4rem 0; }
@@ -182,7 +213,7 @@
     </div>
     <div class="v-separator"></div>
     <div id="forecast-custom">
-      <div class="card">
+      <div class="card form-card">
         <h2 class="custom-location-title">Check another location</h2>
         <form id="location-form">
           <input type="text" id="location-input" placeholder="Enter city name" required>
