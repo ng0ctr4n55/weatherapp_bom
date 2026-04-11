@@ -38,3 +38,7 @@ docker run -p 5000:5000 weatherapp-bom
 ```
 
 **Gotcha:** Flask is configured with `host="0.0.0.0"` — required for the container to be reachable. If reverted to `127.0.0.1`, the app will be unreachable from outside the container.
+
+# Improvement Idea
+1. Build better UI like @WeatherApp_NewUI.png
+2. Use open source free Weather forecast from met.no, delivered by the Norwegian Meteorological Institute.
