@@ -16,17 +16,39 @@
     main { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
     #status { text-align: center; padding: 2rem; color: #718096; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
-    .card { background: white; border-radius: 12px; padding: 1.2rem 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 0.4rem; }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.2rem 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      transition: all 0.2s ease-in-out;
+    }
     .card.today { border: 2px solid #2b6cb0; }
+
+    /* Dynamic backgrounds */
+    .card[class*="bg-"] { color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .card.bg-sunny { background-image: linear-gradient(160deg, #38bdf8, #facc15); }
+    .card.bg-partly-sunny { background-image: linear-gradient(160deg, #7dd3fc, #d1d5db); color: #1f2937; text-shadow: none; }
+    .card.bg-cloudy { background-image: linear-gradient(160deg, #9ca3af, #6b7280); }
+    .card.bg-rain { background-image: linear-gradient(160deg, #6b7280, #4b5563); }
+    .card.bg-storm { background-image: linear-gradient(160deg, #4b5563, #374151); }
+
     .day { font-weight: 700; font-size: 0.95rem; color: #2b6cb0; }
     .date { font-size: 0.75rem; color: #718096; }
     .condition { font-size: 0.85rem; color: #4a5568; margin-top: 0.3rem; }
     .temps { font-size: 1.1rem; font-weight: 600; margin-top: 0.3rem; }
     .temp-max { color: #e53e3e; }
     .temp-sep { color: #cbd5e0; }
-    .temp-min { color: #4299e1; }
+    .temp-min { color: #4299e1; }    
     .rain { font-size: 0.8rem; color: #2f855a; margin-top: 0.2rem; }
     .fire { font-size: 0.75rem; color: #c05621; margin-top: 0.2rem; }
+
+    /* Text color overrides for dynamic backgrounds */
+    .card[class*="bg-"] .day, .card[class*="bg-"] .date, .card[class*="bg-"] .condition, .card[class*="bg-"] .temp-max, .card[class*="bg-"] .temp-sep, .card[class*="bg-"] .temp-min, .card[class*="bg-"] .rain, .card[class*="bg-"] .fire { color: inherit; }
+
     .weather-icon { display: flex; align-items: center; justify-content: center; height: 56px; margin: 0.4rem 0; }
     .weather-icon svg { overflow: visible; }
     /* sun ray spin */
@@ -136,6 +158,11 @@
       return 'icon-sunny';
     }
 
+    function weatherBgClass(descriptor) {
+      const iconId = weatherIconId(descriptor);
+      return 'bg-' + iconId.substring(5); // e.g. "icon-sunny" -> "bg-sunny"
+    }
+
     function makeWeatherIcon(descriptor) {
       const svg = document.createElementNS(SVG_NS, 'svg');
       svg.setAttribute('width', '52');
@@ -161,6 +188,7 @@
     function buildCard(day, isToday) {
       const d = new Date(day.date);
       const card = el("div", "card" + (isToday ? " today" : ""));
+      card.classList.add(weatherBgClass(day.icon_descriptor));
 
       card.appendChild(txt("div", "day", DAYS[d.getUTCDay()]));
       card.appendChild(txt("div", "date", d.getUTCDate() + " " + MONTHS[d.getUTCMonth()]));
