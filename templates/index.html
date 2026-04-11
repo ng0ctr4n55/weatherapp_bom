@@ -268,11 +268,19 @@
 
     function buildCard(day, isToday) {
       const d = new Date(day.date);
+      const formatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Australia/Melbourne',
+        weekday: 'long',
+        day: 'numeric',
+        month: 'short'
+      });
+      const parts = formatter.formatToParts(d).reduce((acc, part) => (acc[part.type] = part.value, acc), {});
+
       const card = el("div", "card" + (isToday ? " today" : ""));
       card.classList.add(weatherBgClass(day.icon_descriptor));
 
-      card.appendChild(txt("div", "day", DAYS[d.getUTCDay()]));
-      card.appendChild(txt("div", "date", d.getUTCDate() + " " + MONTHS[d.getUTCMonth()]));
+      card.appendChild(txt("div", "day", parts.weekday));
+      card.appendChild(txt("div", "date", `${parts.day} ${parts.month}`));
 
       const iconWrap = el("div", "weather-icon");
       iconWrap.appendChild(makeWeatherIcon(day.icon_descriptor));
@@ -307,8 +315,12 @@
       const grid = document.getElementById("cards");
       grid.textContent = "";
       payload.data.forEach((day, i) => grid.appendChild(buildCard(day, i === 0)));
-      document.getElementById("last-updated").textContent =
-        "Last updated: " + new Date(payload.fetched_at).toLocaleString();
+      const fetchedAt = new Date(payload.fetched_at);
+      const lastUpdatedText = "Last updated: " + fetchedAt.toLocaleString('en-AU', {
+        timeZone: 'Australia/Melbourne',
+        dateStyle: 'medium', timeStyle: 'short'
+      });
+      document.getElementById("last-updated").textContent = lastUpdatedText;
       document.getElementById("status").hidden = true;
       grid.hidden = false;
     }
@@ -390,7 +402,7 @@
       const card = el("div", "card");
       card.classList.add(weatherBgClass(weather.icon_descriptor));
       card.appendChild(txt("div", "day", weather.name));
-      card.appendChild(txt("div", "date", new Date().toLocaleDateString()));
+      card.appendChild(txt("div", "date", new Date().toLocaleDateString('en-AU', { timeZone: 'Australia/Melbourne' })));
       const iconWrap = el("div", "weather-icon");
       iconWrap.appendChild(makeWeatherIcon(weather.icon_descriptor));
       card.appendChild(iconWrap);
